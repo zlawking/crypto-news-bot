@@ -1,7 +1,7 @@
 """
-Crypto News → Telegram (ภาษาไทย)
-ดึงข่าว Crypto จาก Bloomberg, Financial Times, WSJ
-แปลเป็นภาษาไทยและส่งเข้า Telegram
+Crypto News → Telegram (English)
+Fetches crypto headlines from Bloomberg, Financial Times, WSJ
+and sends to Telegram daily.
 """
 
 import urllib.request
@@ -12,7 +12,7 @@ import json
 import os
 
 # ============================================================
-# CONFIG — อ่านจาก Environment Variables (GitHub Secrets)
+# CONFIG — read from Environment Variables (GitHub Secrets)
 # ============================================================
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
@@ -30,21 +30,6 @@ CRYPTO_KEYWORDS = [
     "token", "digital asset", "web3", "xrp", "solana", "ripple",
 ]
 # ============================================================
-
-
-def translate_to_thai(text):
-    try:
-        encoded = urllib.parse.quote(text[:500])
-        url = (
-            "https://translate.googleapis.com/translate_a/single"
-            f"?client=gtx&sl=en&tl=th&dt=t&q={encoded}"
-        )
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            result = json.load(resp)
-        return "".join(part[0] for part in result[0] if part[0])
-    except Exception:
-        return text
 
 
 def fetch_rss(name, url):
@@ -65,12 +50,12 @@ def fetch_rss(name, url):
             if name != "Bloomberg" and not any(kw in title.lower() for kw in CRYPTO_KEYWORDS):
                 continue
             if title:
-                headlines.append(translate_to_thai(title))
+                headlines.append(title)
                 count += 1
         if not headlines:
-            headlines.append("(ไม่พบข่าว crypto ใหม่วันนี้)")
+            headlines.append("(No new crypto headlines today)")
     except Exception as e:
-        headlines.append(f"(ดึงข้อมูลไม่ได้: {e})")
+        headlines.append(f"(Error fetching: {e})")
     return headlines
 
 
@@ -83,7 +68,7 @@ def build_message(all_news):
         for item in items:
             lines.append(f"• {item}")
         lines.append("")
-    lines.append("_อัปเดตอัตโนมัติทุกวัน 09:00 น._")
+    lines.append("_Auto-updated daily at 09:00 ICT_")
     return "\n".join(lines)
 
 
