@@ -1,0 +1,32 @@
+name: Makro Beef Alert
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 09:00 น. เวลาไทย (UTC+7)
+    - cron: '0 8 * * *'   # 15:00 น. เวลาไทย (ตรวจซ้ำบ่าย)
+  workflow_dispatch:
+
+jobs:
+  check-beef:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Run beef alert script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python makro_beef_alert.py
