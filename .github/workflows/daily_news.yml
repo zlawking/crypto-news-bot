@@ -1,0 +1,25 @@
+name: Crypto News Daily
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 02:00 UTC = 09:00 น. เวลาไทย (UTC+7)
+  workflow_dispatch:        # รันมือได้จาก GitHub UI
+
+jobs:
+  send-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run crypto news script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python us_market_news.py
